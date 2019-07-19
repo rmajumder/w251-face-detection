@@ -64,11 +64,12 @@ def normalize_faces(image, faces_coord):
     
     return faces
   
+count = 0
 for image in images:
-    detector = FaceDetector("opencv/data/haarcascades/haarcascade_frontalface_default.xml")
+    detector = FaceDetector("haarcascade_frontalface_default.xml")
     faces_coord = detector.detect(image, True)
     faces = normalize_faces(image ,faces_coord)
-    count = 0
+    #count = 0
     for i, face in enumerate(faces):
             cv2.imwrite('%s.jpeg' % (count), faces[i])
             count += 1  
