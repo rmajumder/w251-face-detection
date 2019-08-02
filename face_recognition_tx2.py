@@ -59,6 +59,8 @@ print("Loaded cascade classifier model")
 load_known_faces()
 print("Loaded known faces encodings")
 
+if not os.path.exists('images-visitors'):
+    os.mkdir('images-visitors')
 
 while(True):
     ret, frame = cap.read()
