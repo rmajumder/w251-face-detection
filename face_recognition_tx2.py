@@ -52,16 +52,23 @@ def check_if_matched(score, threshold=0.5):
     else:
         return False
 
+# Load face detection model
 cap = cv2.VideoCapture(1)
 face_cascade = cv2.CascadeClassifier('/opt/opencv/data/haarcascades/haarcascade_frontalface_default.xml')
 print("Loaded cascade classifier model")
 
+# load encodings for all the known faces into memory
 load_known_faces()
 print("Loaded known faces encodings")
 
+# create a folder to store all visitor images
 if not os.path.exists('images-visitors'):
     os.mkdir('images-visitors')
 
+# Continuously capture images from the camera at regular interval (every 2 seconds)
+# If a face is detected in the the image,
+# and check if it matches with any of the known faces.
+# If it's an unkown face or a person, send an alert email with the person's picture.
 while(True):
     ret, frame = cap.read()
 
@@ -69,18 +76,23 @@ while(True):
     if ret == True:
         print("captured image")
         gray_img = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        # face detection
+        # Face detection. Check if there's a face in the image.
         faces = face_cascade.detectMultiScale(gray_img, 1.3, 5)
         for (x, y, w, h) in faces:
             t0 = time.time()
 
+            # save image
             cur_img_path = save_image(frame)
+            # resize image for faster retreival of encodings
             small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
             face_locations = face_recognition.face_locations(small_frame)
             face_encodings = face_recognition.face_encodings(small_frame, face_locations)
 
+            # get the consine similarity for the best match among all the known faces
             score = lookup_known_face(face_encodings[0])
 
+            # check if the score is less than threshold i.e.,if the person is a
+            # known person
             is_matched = check_if_matched(score)
 
             t1 = time.time()
